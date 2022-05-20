@@ -1,3 +1,5 @@
 *
 !.gitignore
 !README.md
+!youtube_watcher
+!youtube_watcher/watcher.py
