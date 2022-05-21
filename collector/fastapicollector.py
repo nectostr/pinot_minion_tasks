@@ -24,10 +24,10 @@ def create_file_ds(view_id: str) -> TextIO:
     return file
 
 
-def parse_descriptor(text: str):
+def parse_descriptor(text: str) -> str:
     return text.replace(r' / ', '_').replace(" ", "_")
 
-def save_record(obj: dict, code="report"):
+def save_record(obj: dict, code="report") -> None:
     global file_descriptors
     if 'video_id_and_cpn' in obj:
         parsed_desc = parse_descriptor(obj['video_id_and_cpn'])
@@ -37,7 +37,7 @@ def save_record(obj: dict, code="report"):
 
 
 @app.post("/quality")
-async def quality(obj: dict):
+async def quality(obj: dict) -> None:
     """
     On quality change
     :param obj:
@@ -47,7 +47,7 @@ async def quality(obj: dict):
 
 
 @app.post("/state")
-async def state(obj: dict):
+async def state(obj: dict) -> None:
     """
     On player state change
     :param obj:
@@ -57,7 +57,7 @@ async def state(obj: dict):
 
 
 @app.post("/report")
-async def report(obj: dict):
+async def report(obj: dict) -> None:
     """
     Each Nms report
     :param obj:

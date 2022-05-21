@@ -2,7 +2,6 @@
 Module responsible for starting and ending selenium based chrome and viewing the video
 """
 
-
 from returns.result import Result, Success, Failure
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -10,12 +9,11 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from pyvirtualdisplay import Display
-
 import time
 from typing import List, Optional
 
-ADDBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension"
-STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/5.1.9.1_0"
+STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension"
+ADDBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/4.46.2_0"
 
 def extract_qualities(text: str) -> List[int]:
     """
@@ -28,6 +26,7 @@ def extract_qualities(text: str) -> List[int]:
 
     nums = [int(s[:s.find("p")]) for s in lines]
     return nums
+
 
 def find_closest(options: List[int], goal: int) -> int:
     """
@@ -87,35 +86,43 @@ def watch(url: str, how_long: Optional[int] = 100,
     where we catch Base Exception and return failure with relevant text
     Why didn't I done that all? Roman asked me to make simple short code for prepared people
     """
-
-    display = Display(visible=0, size=(800, 600))
+    # Display size is random popular screen size
+    display = Display(visible=False, size=(1930, 1080))
     display.start()
 
     options = Options()
 
-    # For unpacked extension
-    options.add_argument("--load-extension=" + STATSFORNERDS_PATH)
-    options.add_argument("--load-extension=" + ADDBLOCK_PATH) # path to folder
+    if ADDBLOCK_PATH[-4:] == ".crx":
+        # For unpacked extension (statsfornerds always unpacked to change it)
+        options.add_argument(f"--load-extension={STATSFORNERDS_PATH}")
+        # For packed .crx extension
+        options.add_extension(ADDBLOCK_PATH + ".crx")
+    else:
+        # In case we want to load both extensions unpacked way
+        options.add_argument(f"--load-extension={STATSFORNERDS_PATH},{ADDBLOCK_PATH}")
 
     # or press space part
     options.add_argument("--autoplay-policy=no-user-gesture-required")
 
     driver = webdriver.Chrome(service=Service(), options=options)
-    time.sleep(2)
-
+    time.sleep(1)
     driver.get(url)
+
+    # To make sure we stay on our page (make sure your ad-block extension does not load itself as 0 page)
+    pages = driver.window_handles
+    driver.switch_to.window(pages[0])
 
     video = driver.find_element(By.ID, 'movie_player')
 
     if not (quality is None):
         select_quality(driver, quality)
 
-    #video.send_keys(Keys.SPACE)  # hits space for start if option not availible
+    # video.send_keys(Keys.SPACE)  # hits space for start if option not availible
 
     if how_long is None:
-        player_status = 1 # Suppose video playing now
-        while player_status != 0: # While not stopped - see docs
-            time.sleep(2) # Random 2s constant not to check to freq
+        player_status = 1  # Suppose video playing now
+        while player_status != 0:  # While not stopped - see docs
+            time.sleep(2)  # Random 2s constant not to check to freq
             player_status = driver.execute_script("return document.getElementById('movie_player').getPlayerState()")
         how = "End of video"
     else:
