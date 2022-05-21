@@ -49,7 +49,7 @@ def find_closes(options: List[int], goal: int) -> int:
                 return options.index(sorted_options[ind - 1])
             else:
                 return options.index(opt)
-
+    return options.index(opt)
 
 def watch(url: str, how_long: int = 100, quality: int = None) -> Result[str, str]:
     """
