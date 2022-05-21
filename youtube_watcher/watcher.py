@@ -12,16 +12,15 @@ from selenium.webdriver.common.keys import Keys
 
 import re
 import time
-from typing import List, Union
+from typing import List, Optional
 
 
 CHROME_DRIVER_PATH = r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\chromedriver.exe"
 
 ADDBLOCK_PATH = r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\5.1.9.1_0"
-    #r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\5.1.9.1_0.crx"
 
-STARTFORNERDS_PATH = r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\chrome_extension"
-#r"../extensions/chrome_extension"
+STATSFORNERDS_PATH = r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\chrome_extension"
+
 
 def extract_qualities(text: str) -> List[int]:
     """
@@ -35,7 +34,7 @@ def extract_qualities(text: str) -> List[int]:
     nums = [int(s[:s.find("p")]) for s in lines]
     return nums
 
-def find_closes(options: List[int], goal: int) -> int:
+def find_closest(options: List[int], goal: int) -> int:
     """
     Accepts unsorted list of options and fins the index of closest to the goal option
     :param options:
@@ -51,7 +50,7 @@ def find_closes(options: List[int], goal: int) -> int:
                 return options.index(opt)
     return options.index(opt)
 
-def select_quality(driver: webdriver.Chrome, quality: int):
+def select_quality(driver: webdriver.Chrome, quality: int) -> None:
     settings = driver.find_element(By.CLASS_NAME,
                                    "ytp-settings-button")  # .find_elements_by_class_name("ytp-settings-button")
     settings.click()
@@ -59,13 +58,13 @@ def select_quality(driver: webdriver.Chrome, quality: int):
     menu[3].click()
     quality_menu = driver.find_element(By.CLASS_NAME, 'ytp-quality-menu')
     options = extract_qualities(quality_menu.text)
-    index_to_select = find_closes(options, quality) + 1  # Because we cutted first "go back to menu" option
+    index_to_select = find_closest(options, quality) + 1  # Because we cutted first "go back to menu" option
     menu = driver.find_elements(By.CLASS_NAME, 'ytp-menuitem')
     menu[index_to_select].click()
 
 
-def watch(url: str, how_long: Union[None, int] = 100,
-          quality: Union[None, int] = None) -> Result[str, str]:
+def watch(url: str, how_long: Optional[int] = 100,
+          quality: Optional[int] = None) -> Result[str, str]:
     """
     Function that completes the task of:
     1. Starting the chrome from selenium
@@ -98,11 +97,8 @@ def watch(url: str, how_long: Union[None, int] = 100,
     options.headless = True
 
     # For unpacked extension
-    options.add_argument("--load-extension=" + STARTFORNERDS_PATH)
+    options.add_argument("--load-extension=" + STATSFORNERDS_PATH)
     options.add_argument("--load-extension=" + ADDBLOCK_PATH) # path to folder
-
-    # For packed extensions
-    #options.add_extension(ADDBLOCK_PATH) # path to srx
 
     driver = webdriver.Chrome(service=Service(CHROME_DRIVER_PATH), options=options)
 
