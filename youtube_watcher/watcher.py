@@ -9,13 +9,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from pyvirtualdisplay import Display
 
 import re
 import time
 from typing import List, Optional
 
 
-CHROME_DRIVER_PATH = r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\chromedriver.exe"
+CHROME_DRIVER_PATH = r"/usr/bin/chromedriver"     #r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\chromedriver.exe"
 
 ADDBLOCK_PATH = r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\5.1.9.1_0"
 
@@ -93,23 +94,35 @@ def watch(url: str, how_long: Optional[int] = 100,
     Why didn't I done that all? Roman asked me to make simple short code for prepared people
     """
 
+    display = Display(visible=0, size=(800, 600))
+    display.start()
+
     options = Options()
-    options.headless = True
+    #options.headless = True
 
     # For unpacked extension
-    options.add_argument("--load-extension=" + STATSFORNERDS_PATH)
-    options.add_argument("--load-extension=" + ADDBLOCK_PATH) # path to folder
+    #options.add_argument("--load-extension=" + STATSFORNERDS_PATH)
+    #options.add_argument("--load-extension=" + ADDBLOCK_PATH) # path to folder
+    #options.add_argument("user-data-dir=other")
+
+    options.add_extension(r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/5.1.9.1_0.crx")
+    options.add_extension(r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension.crx")
+
+    options.add_argument("--autoplay-policy=no-user-gesture-required");
 
     driver = webdriver.Chrome(service=Service(CHROME_DRIVER_PATH), options=options)
+    time.sleep(2)
 
     driver.get(url)
+    # time.sleep(1)
+    # driver.refresh()
 
     video = driver.find_element(By.ID, 'movie_player')
 
     if not (quality is None):
         select_quality(driver, quality)
 
-    video.send_keys(Keys.SPACE)  # hits space
+    #video.send_keys(Keys.SPACE)  # hits space
 
     if how_long is None:
         player_status = 1 # Suppose video playing now
@@ -128,4 +141,4 @@ def watch(url: str, how_long: Optional[int] = 100,
 
 
 if __name__ == '__main__':
-    print(watch("https://youtu.be/ZzwWWut_ibU?t=103", None, None))
+    print(watch("https://www.youtube.com/watch?v=ZzwWWut_ibU", 100, None))
