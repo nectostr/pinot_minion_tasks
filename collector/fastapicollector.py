@@ -2,6 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+import os
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -10,21 +12,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+DUMP_FOLDER = "."
+event_file_name = "events.txt"
+report_file_name = "report.txt"
+
 
 @app.post("/quality")
 async def quality(obj: dict):
-    print(obj)
+    """
+    On quality change
+    :param obj:
+    :return:
+    """
+    print(obj, file=event_file, flush=True)
+
 
 
 @app.post("/state")
 async def state(obj: dict):
-    print(obj)
+    """
+    On player state change
+    :param obj:
+    :return:
+    """
+    print(obj, file=event_file, flush=True)
 
 
 @app.post("/report")
 async def report(obj: dict):
-    print(obj)
+    """
+    Each Nms report
+    :param obj:
+    :return:
+    """
+    print(obj, file=report_file, flush=True)
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=34543)
+    event_file = open(os.path.join(DUMP_FOLDER, event_file_name), "a")
+    report_file = open(os.path.join(DUMP_FOLDER, report_file_name), "a")
+    try:
+        uvicorn.run(app, host='0.0.0.0', port=34543)
+    except (KeyboardInterrupt, Exception) as e:
+        event_file.close()
+        report_file.close()
+        raise
+
