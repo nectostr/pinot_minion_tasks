@@ -27,6 +27,14 @@ def create_file_ds(view_id: str) -> TextIO:
 def parse_descriptor(text: str):
     return text.replace(r' / ', '_').replace(" ", "_")
 
+def save_record(obj: dict, code="report"):
+    global file_descriptors
+    if 'video_id_and_cpn' in obj:
+        parsed_desc = parse_descriptor(obj['video_id_and_cpn'])
+        name = f"{code}_{parsed_desc}"
+        event_file = file_descriptors.get(name, create_file_ds(name))
+        print(obj, file=event_file, flush=True)
+
 
 @app.post("/quality")
 async def quality(obj: dict):
@@ -35,12 +43,7 @@ async def quality(obj: dict):
     :param obj:
     :return:
     """
-    global file_descriptors
-    if 'video_id_and_cpn' in obj:
-        parsed_desc = parse_descriptor(obj['video_id_and_cpn'])
-        name = f"event_{parsed_desc}"
-        event_file = file_descriptors.get(name, create_file_ds(name))
-        print(obj, file=event_file, flush=True)
+    save_record(obj, "event")
 
 
 @app.post("/state")
@@ -50,12 +53,7 @@ async def state(obj: dict):
     :param obj:
     :return:
     """
-    global file_descriptors
-    if 'video_id_and_cpn' in obj:
-        parsed_desc = parse_descriptor(obj['video_id_and_cpn'])
-        name = f"event_{parsed_desc}"
-        event_file = file_descriptors.get(name, create_file_ds(name))
-        print(obj, file=event_file, flush=True)
+    save_record(obj, "event")
 
 
 @app.post("/report")
@@ -65,18 +63,13 @@ async def report(obj: dict):
     :param obj:
     :return:
     """
-    global file_descriptors
-    if 'video_id_and_cpn' in obj:
-        parsed_desc = parse_descriptor(obj['video_id_and_cpn'])
-        name = f"report_{parsed_desc}"
-        report_file = file_descriptors.get(name, create_file_ds(name))
-        print(obj, file=report_file, flush=True)
+    save_record(obj, "report")
 
 
 if __name__ == '__main__':
     try:
         uvicorn.run(app, host='0.0.0.0', port=34543)
     except (KeyboardInterrupt, Exception) as e:
-        for i in file_descriptors:
-            file_descriptors[i].close()
+        for file in file_descriptors.values():
+            file.close()
         raise
