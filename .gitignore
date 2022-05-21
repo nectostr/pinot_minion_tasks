@@ -4,3 +4,6 @@
 !youtube_watcher
 !youtube_watcher/watcher.py
 !collector
+!extensions
+!extensions/chrome_extension
+!extensions/chrome_extension/*
