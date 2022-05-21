@@ -17,8 +17,8 @@ from typing import List, Optional
 
 
 CHROME_DRIVER_PATH = r"/usr/bin/chromedriver"
-ADDBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension.crx"
-STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/5.1.9.1_0.crx"
+ADDBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension"
+STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/5.1.9.1_0"
 
 def extract_qualities(text: str) -> List[int]:
     """
@@ -98,12 +98,12 @@ def watch(url: str, how_long: Optional[int] = 100,
     #options.headless = True
 
     # For unpacked extension
-    #options.add_argument("--load-extension=" + STATSFORNERDS_PATH)
-    #options.add_argument("--load-extension=" + ADDBLOCK_PATH) # path to folder
+    options.add_argument("--load-extension=" + STATSFORNERDS_PATH)
+    options.add_argument("--load-extension=" + ADDBLOCK_PATH) # path to folder
     #options.add_argument("user-data-dir=other")
 
-    options.add_extension(STATSFORNERDS_PATH)
-    options.add_extension(ADDBLOCK_PATH)
+    #options.add_extension(STATSFORNERDS_PATH)
+    #options.add_extension(ADDBLOCK_PATH)
 
     options.add_argument("--autoplay-policy=no-user-gesture-required");
 
