@@ -11,12 +11,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from pyvirtualdisplay import Display
 
-import re
 import time
 from typing import List, Optional
 
-
-CHROME_DRIVER_PATH = r"/usr/bin/chromedriver"
 ADDBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension"
 STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/5.1.9.1_0"
 
@@ -95,24 +92,18 @@ def watch(url: str, how_long: Optional[int] = 100,
     display.start()
 
     options = Options()
-    #options.headless = True
 
     # For unpacked extension
     options.add_argument("--load-extension=" + STATSFORNERDS_PATH)
     options.add_argument("--load-extension=" + ADDBLOCK_PATH) # path to folder
-    #options.add_argument("user-data-dir=other")
 
-    #options.add_extension(STATSFORNERDS_PATH)
-    #options.add_extension(ADDBLOCK_PATH)
+    # or press space part
+    options.add_argument("--autoplay-policy=no-user-gesture-required")
 
-    options.add_argument("--autoplay-policy=no-user-gesture-required");
-
-    driver = webdriver.Chrome(service=Service(CHROME_DRIVER_PATH), options=options)
+    driver = webdriver.Chrome(service=Service(), options=options)
     time.sleep(2)
 
     driver.get(url)
-    # time.sleep(1)
-    # driver.refresh()
 
     video = driver.find_element(By.ID, 'movie_player')
 
