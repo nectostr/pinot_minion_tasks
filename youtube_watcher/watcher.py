@@ -16,12 +16,9 @@ import time
 from typing import List, Optional
 
 
-CHROME_DRIVER_PATH = r"/usr/bin/chromedriver"     #r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\chromedriver.exe"
-
-ADDBLOCK_PATH = r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\5.1.9.1_0"
-
-STATSFORNERDS_PATH = r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\chrome_extension"
-
+CHROME_DRIVER_PATH = r"/usr/bin/chromedriver"
+ADDBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension.crx"
+STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/5.1.9.1_0.crx"
 
 def extract_qualities(text: str) -> List[int]:
     """
@@ -105,8 +102,8 @@ def watch(url: str, how_long: Optional[int] = 100,
     #options.add_argument("--load-extension=" + ADDBLOCK_PATH) # path to folder
     #options.add_argument("user-data-dir=other")
 
-    options.add_extension(r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/5.1.9.1_0.crx")
-    options.add_extension(r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension.crx")
+    options.add_extension(STATSFORNERDS_PATH)
+    options.add_extension(ADDBLOCK_PATH)
 
     options.add_argument("--autoplay-policy=no-user-gesture-required");
 
@@ -122,7 +119,7 @@ def watch(url: str, how_long: Optional[int] = 100,
     if not (quality is None):
         select_quality(driver, quality)
 
-    #video.send_keys(Keys.SPACE)  # hits space
+    #video.send_keys(Keys.SPACE)  # hits space for start if option not availible
 
     if how_long is None:
         player_status = 1 # Suppose video playing now
