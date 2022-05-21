@@ -51,6 +51,18 @@ def find_closes(options: List[int], goal: int) -> int:
                 return options.index(opt)
     return options.index(opt)
 
+def select_quality(driver: webdriver.Chrome, quality: int):
+    settings = driver.find_element(By.CLASS_NAME,
+                                   "ytp-settings-button")  # .find_elements_by_class_name("ytp-settings-button")
+    settings.click()
+    menu = driver.find_elements(By.CLASS_NAME, 'ytp-menuitem')
+    menu[3].click()
+    quality_menu = driver.find_element(By.CLASS_NAME, 'ytp-quality-menu')
+    options = extract_qualities(quality_menu.text)
+    index_to_select = find_closes(options, quality) + 1  # Because we cutted first "go back to menu" option
+    menu = driver.find_elements(By.CLASS_NAME, 'ytp-menuitem')
+    menu[index_to_select].click()
+
 
 def watch(url: str, how_long: Union[None, int] = 100,
           quality: Union[None, int] = None) -> Result[str, str]:
@@ -65,22 +77,22 @@ def watch(url: str, how_long: Union[None, int] = 100,
     :param how_long: seconds, for timeout of video viewing. None for "till the end of video"
     :param quality: None for auto, int ~240-1024 for specific quality selection
     :return: 1 for success
+
+    P.s.:
+    1. Better to check parameters such as
+            url_patterns = [r"^https?://www.youtube.com/watch?.*",
+                            r"https?://youtu.be/.*"]
+            for pattern in url_patterns:
+                if re.fullmatch(pattern, url):
+                    break
+            else:
+                return Failure("Url does not much youtube video url")
+    2. Better to make sure numeric how_long < video length
+    (use selenium to get video length from video player text option)
+    3. Move everything in relevant Try-except blocks,
+    where we catch Base Exception and return failure with relevant text
+    Why didn't I done that all? Roman asked me to make simple short code for prepared people
     """
-    # if not (quality is None):
-    #     raise NotImplementedError(f"Quality selection not implemented yet,"
-    #                               f" use None for automatic quality selection")
-
-    # if how_long is None:
-    #     raise NotImplementedError(f'"Till the end" viewing option is not implemented yet,'
-    #                               f'use seconds in int')
-
-    url_patterns = [r"^https?://www.youtube.com/watch?.*",
-                    r"https?://youtu.be/.*"]
-    for pattern in url_patterns:
-        if re.fullmatch(pattern, url):
-            break
-    else:
-        return Failure("Url does not much youtube video url")
 
     options = Options()
     options.headless = True
@@ -91,45 +103,32 @@ def watch(url: str, how_long: Union[None, int] = 100,
 
     # For packed extensions
     #options.add_extension(ADDBLOCK_PATH) # path to srx
-    # try:
 
     driver = webdriver.Chrome(service=Service(CHROME_DRIVER_PATH), options=options)
 
     driver.get(url)
 
-
     video = driver.find_element(By.ID, 'movie_player')
 
     if not (quality is None):
-        settings = driver.find_element(By.CLASS_NAME, "ytp-settings-button")    #.find_elements_by_class_name("ytp-settings-button")
-        settings.click()
-        menu = driver.find_elements(By.CLASS_NAME, 'ytp-menuitem')
-        menu[3].click()
-        quality_menu = driver.find_element(By.CLASS_NAME, 'ytp-quality-menu')
-        options = extract_qualities(quality_menu.text)
-        index_to_select = find_closes(options, quality) + 1 # Because we cutted first "go back to menu" option
-        menu = driver.find_elements(By.CLASS_NAME, 'ytp-menuitem')
-        menu[index_to_select].click()
+        select_quality(driver, quality)
 
     video.send_keys(Keys.SPACE)  # hits space
 
     if how_long is None:
         player_status = 1 # Suppose video playing now
         while player_status != 0: # While not stopped - see docs
-            time.sleep(5) # Random 5s constant not to check to freq
+            time.sleep(2) # Random 2s constant not to check to freq
             player_status = driver.execute_script("return document.getElementById('movie_player').getPlayerState()")
+        how = "End of video"
     else:
         time.sleep(how_long)
+        video.send_keys(Keys.SPACE)
+        how = "Time limit"
 
-
-    video.send_keys(Keys.SPACE)
     driver.close()
 
-    # except BaseException as e:
-    #     return Failure(str(e))
-
-
-    return Success("End of video")
+    return Success(how)
 
 
 if __name__ == '__main__':
