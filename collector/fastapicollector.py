@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from typing import TextIO
 import os
 
 app = FastAPI()
@@ -13,8 +14,18 @@ app.add_middleware(
 )
 
 DUMP_FOLDER = "."
-event_file_name = "events.txt"
-report_file_name = "report.txt"
+file_descriptors = {}
+
+
+def create_file_ds(view_id: str) -> TextIO:
+    global file_descriptors
+    file = open(f"{os.path.join(DUMP_FOLDER,view_id)}.txt", "a")
+    file_descriptors[view_id] = file
+    return file
+
+
+def parse_descriptor(text: str):
+    return text.replace(r' / ', '_').replace(" ", "_")
 
 
 @app.post("/quality")
@@ -24,8 +35,12 @@ async def quality(obj: dict):
     :param obj:
     :return:
     """
-    print(obj, file=event_file, flush=True)
-
+    global file_descriptors
+    if 'video_id_and_cpn' in obj:
+        parsed_desc = parse_descriptor(obj['video_id_and_cpn'])
+        name = f"event_{parsed_desc}"
+        event_file = file_descriptors.get(name, create_file_ds(name))
+        print(obj, file=event_file, flush=True)
 
 
 @app.post("/state")
@@ -35,7 +50,12 @@ async def state(obj: dict):
     :param obj:
     :return:
     """
-    print(obj, file=event_file, flush=True)
+    global file_descriptors
+    if 'video_id_and_cpn' in obj:
+        parsed_desc = parse_descriptor(obj['video_id_and_cpn'])
+        name = f"event_{parsed_desc}"
+        event_file = file_descriptors.get(name, create_file_ds(name))
+        print(obj, file=event_file, flush=True)
 
 
 @app.post("/report")
@@ -45,16 +65,18 @@ async def report(obj: dict):
     :param obj:
     :return:
     """
-    print(obj, file=report_file, flush=True)
+    global file_descriptors
+    if 'video_id_and_cpn' in obj:
+        parsed_desc = parse_descriptor(obj['video_id_and_cpn'])
+        name = f"report_{parsed_desc}"
+        report_file = file_descriptors.get(name, create_file_ds(name))
+        print(obj, file=report_file, flush=True)
 
 
 if __name__ == '__main__':
-    event_file = open(os.path.join(DUMP_FOLDER, event_file_name), "a")
-    report_file = open(os.path.join(DUMP_FOLDER, report_file_name), "a")
     try:
         uvicorn.run(app, host='0.0.0.0', port=34543)
     except (KeyboardInterrupt, Exception) as e:
-        event_file.close()
-        report_file.close()
+        for i in file_descriptors:
+            file_descriptors[i].close()
         raise
-
