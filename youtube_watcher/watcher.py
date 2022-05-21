@@ -3,6 +3,7 @@ Module responsible for starting and ending selenium based chrome and viewing the
 """
 
 from returns.result import Result, Success, Failure
+from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -13,7 +14,7 @@ import time
 from typing import List, Optional
 
 STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension"
-ADDBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/4.46.2_0"
+ADBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/4.46.2_0.crx"
 
 def extract_qualities(text: str) -> List[int]:
     """
@@ -87,19 +88,19 @@ def watch(url: str, how_long: Optional[int] = 100,
     Why didn't I done that all? Roman asked me to make simple short code for prepared people
     """
     # Display size is random popular screen size
-    display = Display(visible=False, size=(1930, 1080))
+    display = Display(visible=False, size=(1920, 1080))
     display.start()
 
     options = Options()
 
-    if ADDBLOCK_PATH[-4:] == ".crx":
+    if ADBLOCK_PATH[-4:] == ".crx":
         # For unpacked extension (statsfornerds always unpacked to change it)
         options.add_argument(f"--load-extension={STATSFORNERDS_PATH}")
         # For packed .crx extension
-        options.add_extension(ADDBLOCK_PATH + ".crx")
+        options.add_extension(ADBLOCK_PATH)
     else:
         # In case we want to load both extensions unpacked way
-        options.add_argument(f"--load-extension={STATSFORNERDS_PATH},{ADDBLOCK_PATH}")
+        options.add_argument(f"--load-extension={STATSFORNERDS_PATH},{ADBLOCK_PATH}")
 
     # or press space part
     options.add_argument("--autoplay-policy=no-user-gesture-required")
@@ -112,7 +113,15 @@ def watch(url: str, how_long: Optional[int] = 100,
     pages = driver.window_handles
     driver.switch_to.window(pages[0])
 
-    video = driver.find_element(By.ID, 'movie_player')
+    # For bad internet connection case - wait and retry 5 sec
+    for s in range(5):
+        try:
+            video = driver.find_element(By.ID, 'movie_player')
+            break
+        except NoSuchElementException:
+            time.sleep(1)
+    else:
+        video = driver.find_element(By.ID, 'movie_player')
 
     if not (quality is None):
         select_quality(driver, quality)
