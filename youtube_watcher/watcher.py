@@ -12,7 +12,7 @@ from selenium.webdriver.common.keys import Keys
 
 import re
 import time
-from typing import List
+from typing import List, Union
 
 
 CHROME_DRIVER_PATH = r"L:\Users\nectostr\PycharmProjects\pinot_minion_tasks\extensions\chromedriver.exe"
@@ -51,7 +51,9 @@ def find_closes(options: List[int], goal: int) -> int:
                 return options.index(opt)
     return options.index(opt)
 
-def watch(url: str, how_long: int = 100, quality: int = None) -> Result[str, str]:
+
+def watch(url: str, how_long: Union[None, int] = 100,
+          quality: Union[None, int] = None) -> Result[str, str]:
     """
     Function that completes the task of:
     1. Starting the chrome from selenium
@@ -68,12 +70,16 @@ def watch(url: str, how_long: int = 100, quality: int = None) -> Result[str, str
     #     raise NotImplementedError(f"Quality selection not implemented yet,"
     #                               f" use None for automatic quality selection")
 
-    if how_long is None:
-        raise NotImplementedError(f'"Till the end" viewing option is not implemented yet,'
-                                  f'use seconds in int')
+    # if how_long is None:
+    #     raise NotImplementedError(f'"Till the end" viewing option is not implemented yet,'
+    #                               f'use seconds in int')
 
-    url_pattern = r"^https?://www.youtube.com/watch?.*"
-    if not re.fullmatch(url_pattern, url):
+    url_patterns = [r"^https?://www.youtube.com/watch?.*",
+                    r"https?://youtu.be/.*"]
+    for pattern in url_patterns:
+        if re.fullmatch(pattern, url):
+            break
+    else:
         return Failure("Url does not much youtube video url")
 
     options = Options()
@@ -106,7 +112,14 @@ def watch(url: str, how_long: int = 100, quality: int = None) -> Result[str, str
         menu[index_to_select].click()
 
     video.send_keys(Keys.SPACE)  # hits space
-    time.sleep(how_long)
+
+    if how_long is None:
+        player_status = 1 # Suppose video playing now
+        while player_status != 0: # While not stopped - see docs
+            time.sleep(5) # Random 5s constant not to check to freq
+            player_status = driver.execute_script("return document.getElementById('movie_player').getPlayerState()")
+    else:
+        time.sleep(how_long)
 
 
     video.send_keys(Keys.SPACE)
@@ -120,4 +133,4 @@ def watch(url: str, how_long: int = 100, quality: int = None) -> Result[str, str
 
 
 if __name__ == '__main__':
-    print(watch("https://www.youtube.com/watch?v=ZzwWWut_ibU", 5, 480))
+    print(watch("https://youtu.be/ZzwWWut_ibU?t=103", None, None))
