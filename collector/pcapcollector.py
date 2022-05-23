@@ -15,12 +15,12 @@ def start_collecting(dump_file: str, arguments: str) -> Result[str, str]:
     :param arguments: string with additional arguments for collecting
     :return: Failure with error or success with pid and filename
     """
-    proc = subprocess.Popen(f"sudo tcpdump {arguments} -w {dump_file}",
+    proc = subprocess.Popen(f"tcpdump {arguments} -w {dump_file}",
                             shell=True,
                             universal_newlines=True,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
-    time.sleep(1)
+    time.sleep(2)
     out = next(iter(proc.stdout.readline, b''))
     if out and ("tcpdump: listening" not in out):
         return Failure(f"{out}")
@@ -34,7 +34,7 @@ def stop_collecting(pid: Optional[int] = None) -> Result[str, str]:
     :return: Success or Failure with relevant info
     """
     if pid is None:
-        proc = subprocess.Popen("sudo killall tcpdump",
+        proc = subprocess.Popen("killall tcpdump",
                                 shell=True,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
