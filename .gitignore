@@ -6,6 +6,7 @@
 !youtube_watcher/watcher.py
 !collector
 !collector/fastapicollector.py
+!collector/pcapcollector.py
 !extensions
 !extensions/chrome_extension
 !extensions/chrome_extension/*
