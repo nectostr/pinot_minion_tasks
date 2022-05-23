@@ -34,18 +34,15 @@ def stop_collecting(pid: Optional[int] = None) -> Result[str, str]:
     :return: Success or Failure with relevant info
     """
     if pid is None:
-        proc = subprocess.Popen("killall tcpdump",
-                                shell=True,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-
+        line = "killall tcpdump"
     else:
-        proc = subprocess.Popen(f"kill {pid}",
-                                shell=True,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+        line = f"kill {pid}"
+
+    proc = subprocess.Popen(line,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
     out, err = proc.communicate()
     if out != b"" or err != b"":
         return Failure(f"out: {out}, err: {err}")
-    else:
-        return Success("Done stopping tcpdump")
+    return Success("Done stopping tcpdump")
