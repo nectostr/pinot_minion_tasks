@@ -40,7 +40,7 @@ def stop_collecting(pid: Optional[int] = None) -> Result[str, str]:
                                 stderr=subprocess.PIPE)
 
     else:
-        proc = subprocess.Popen(f"kill -9 {pid}",
+        proc = subprocess.Popen(f"kill {pid}",
                                 shell=True,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
