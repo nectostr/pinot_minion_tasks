@@ -109,7 +109,11 @@ def watch(url: str, how_long: Optional[int] = 100,
     time.sleep(1)
     driver.get(url)
 
-    # To make sure we stay on our page (make sure your ad-block extension does not load itself as 0 page)
+    # To make sure we stay on our page (make sure your ad-block extension does
+    # not load itself as 0 page)
+    # The problem is that we do not know when the adblock page will be opened,
+    # so we have to make sure that we done our best to swithced to right window
+    # and give youtube ~5 secs to load in bad cases
     i = 0
     pages = driver.window_handles
     driver.switch_to.window(pages[i])
