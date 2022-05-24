@@ -13,8 +13,8 @@ from pyvirtualdisplay import Display
 import time
 from typing import List, Optional
 
-STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/chrome_extension"
-ADBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/extensions/4.46.2_0.crx"
+STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/QoE_youtube/extensions/chrome_extension"
+ADBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/QoE_youtube/extensions/4.46.2_0.crx"
 
 def extract_qualities(text: str) -> List[int]:
     """
