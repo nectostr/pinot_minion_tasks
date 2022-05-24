@@ -65,11 +65,15 @@ async def report(obj: dict) -> None:
     """
     save_record(obj, "report")
 
-
-if __name__ == '__main__':
+def run(host: str = "0.0.0.0", port : int = 34543):
+    global app
     try:
-        uvicorn.run(app, host='0.0.0.0', port=34543)
+        uvicorn.run(app, host=host, port=port)
     except (KeyboardInterrupt, Exception) as e:
         for file in file_descriptors.values():
             file.close()
         raise
+
+
+if __name__ == '__main__':
+    run()

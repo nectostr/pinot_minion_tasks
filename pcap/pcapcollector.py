@@ -3,28 +3,25 @@ Module that set's up the pcap files data collection
 """
 import subprocess
 import time
-from typing import Optional
+from typing import Optional, List
 
 from returns.result import Result, Success, Failure
 
 
-def start_collecting(dump_file: str, arguments: str) -> Result[str, str]:
+def start_collecting(dump_file: str, arguments: Optional[List[str]] = None) -> Result[str, str]:
     """
     Function that starts data collection
     :param dump_file: foldr to save data to
     :param arguments: string with additional arguments for collecting
     :return: Failure with error or success with pid and filename
     """
-    proc = subprocess.Popen(f"tcpdump {arguments} -w {dump_file}",
-                            shell=True,
-                            universal_newlines=True,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
+    arguments = arguments or []
+    proc = subprocess.Popen(["tcpdump"] + arguments + ["-U", "-w", dump_file])
     time.sleep(2)
-    out = next(iter(proc.stdout.readline, b''))
-    if out and ("tcpdump: listening" not in out):
-        return Failure(f"{out}")
-    return Success(f"{out} with <{proc.pid}>")
+    if proc.poll() is None:
+        return Success(f"Running with <{proc.pid}>")
+
+    return Failure(f"Process terminated with return code {proc.poll()}")
 
 
 def stop_collecting(pid: Optional[int] = None) -> Result[str, str]:
@@ -34,15 +31,17 @@ def stop_collecting(pid: Optional[int] = None) -> Result[str, str]:
     :return: Success or Failure with relevant info
     """
     if pid is None:
-        line = "killall tcpdump"
+        line = ["killall", "tcpdump"]
     else:
-        line = f"kill {pid}"
+        line = ["kill", f"{pid}"]
 
     proc = subprocess.Popen(line,
-                            shell=True,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     out, err = proc.communicate()
+
+    time.sleep(2)  # for tcpdump to finish file
+
     if out != b"" or err != b"":
         return Failure(f"out: {out}, err: {err}")
     return Success("Done stopping tcpdump")

@@ -110,17 +110,24 @@ def watch(url: str, how_long: Optional[int] = 100,
     driver.get(url)
 
     # To make sure we stay on our page (make sure your ad-block extension does not load itself as 0 page)
+    i = 0
     pages = driver.window_handles
-    driver.switch_to.window(pages[0])
+    driver.switch_to.window(pages[i])
+    if "youtube" not in driver.current_url:
+        i = 1
+        driver.switch_to.window(pages[i])
+
 
     # For bad internet connection case - wait and retry 5 sec
     for s in range(5):
         try:
+            driver.switch_to.window(pages[i])
             video = driver.find_element(By.ID, 'movie_player')
             break
         except NoSuchElementException:
             time.sleep(1)
     else:
+        driver.switch_to.window(pages[i])
         video = driver.find_element(By.ID, 'movie_player')
 
     if not (quality is None):

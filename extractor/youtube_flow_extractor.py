@@ -8,12 +8,24 @@ from returns.result import Result, Success
 
 
 def ends_with(text: str, end: str) -> bool:
+    """
+    regexp for end with
+    :param text: where to look for
+    :param end: what to look for
+    :return: True for ends and Fals for not ends
+    """
     if len(end) > len(text):
         return False
     return text[-len(end):] == end
 
 
-def f(filepath: str, dump_path: str = ".") -> Result[list, str]:
+def extract(filepath: str, dump_path: str = ".") -> Result[list, str]:
+    """
+    Function that extracts the packets that belongs to the youtube video view
+    :param filepath: where pcap is
+    :param dump_path: where to store resulting files
+    :return: list of names of resulting files
+    """
     capture = pyshark.FileCapture(filepath, display_filter='tls.handshake.extension.type == 0')
 
     starts = []
@@ -40,4 +52,4 @@ def f(filepath: str, dump_path: str = ".") -> Result[list, str]:
 
 
 if __name__ == '__main__':
-    f(r"p.cap")
+    extract(r"p.cap")
