@@ -44,4 +44,5 @@ def stop_collecting(pid: Optional[int] = None) -> Result[str, str]:
 
     if out != b"" or err != b"":
         return Failure(f"out: {out}, err: {err}")
-    return Success("Done stopping tcpdump")
+
+    return Success("tcpdump stopped")

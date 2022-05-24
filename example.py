@@ -14,7 +14,7 @@ import pcap.pcapcollector as pcapc
 
 def run(video: str, duration: int, data_dump: str, pcap_name: str) -> Result[str, str]:
     """
-
+    Example youtube traffic collection run
     :param video:
     :param duration:
     :param data_dump:
