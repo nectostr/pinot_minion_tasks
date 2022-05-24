@@ -2,19 +2,21 @@
 Module responsible for starting and ending selenium based chrome and viewing the video
 """
 
-from returns.result import Result, Success, Failure
-from selenium.common.exceptions import NoSuchElementException
+import time
+from typing import List, Optional
+
+from pyvirtualdisplay import Display
+from returns.result import Result, Success
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from pyvirtualdisplay import Display
-import time
-from typing import List, Optional
 
 STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/QoE_youtube/extensions/chrome_extension"
 ADBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/QoE_youtube/extensions/4.46.2_0.crx"
+
 
 def extract_qualities(text: str) -> List[int]:
     """
@@ -37,6 +39,9 @@ def find_closest(options: List[int], goal: int) -> int:
     :return: index of closest option
     """
     sorted_options = sorted(options)
+    if not sorted_options:
+        raise Exception("Youtube parsing error: quality menu block is empty")
+
     for ind, opt in enumerate(sorted_options):
         if opt >= goal:
             if ind > 0 and (goal - sorted_options[ind - 1] < opt - goal):
@@ -44,6 +49,7 @@ def find_closest(options: List[int], goal: int) -> int:
             else:
                 return options.index(opt)
     return options.index(opt)
+
 
 def select_quality(driver: webdriver.Chrome, quality: int) -> None:
     settings = driver.find_element(By.CLASS_NAME,
@@ -114,13 +120,15 @@ def watch(url: str, how_long: Optional[int] = 100,
     # The problem is that we do not know when the adblock page will be opened,
     # so we have to make sure that we done our best to swithced to right window
     # and give youtube ~5 secs to load in bad cases
-    i = 0
-    pages = driver.window_handles
-    driver.switch_to.window(pages[i])
-    if "youtube" not in driver.current_url:
-        i = 1
-        driver.switch_to.window(pages[i])
 
+    pages = driver.window_handles
+
+    i = 0
+    driver.switch_to.window(pages[i])
+    # If current is "not ours", we know that there is ours, so let's search
+    while "youtube" not in driver.current_url and i < len(pages):
+        i += 1
+        driver.switch_to.window(pages[i])
 
     # For bad internet connection case - wait and retry 5 sec
     for s in range(5):

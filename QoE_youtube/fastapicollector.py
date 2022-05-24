@@ -1,9 +1,9 @@
+import os
+from typing import TextIO
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from typing import TextIO
-import os
 
 app = FastAPI()
 app.add_middleware(
@@ -19,13 +19,14 @@ file_descriptors = {}
 
 def create_file_ds(view_id: str) -> TextIO:
     global file_descriptors
-    file = open(f"{os.path.join(DUMP_FOLDER,view_id)}.txt", "a")
+    file = open(f"{os.path.join(DUMP_FOLDER, view_id)}.txt", "a")
     file_descriptors[view_id] = file
     return file
 
 
 def parse_descriptor(text: str) -> str:
     return text.replace(r' / ', '_').replace(" ", "_")
+
 
 def save_record(obj: dict, code="report") -> None:
     global file_descriptors
@@ -65,7 +66,8 @@ async def report(obj: dict) -> None:
     """
     save_record(obj, "report")
 
-def run(host: str = "0.0.0.0", port : int = 34543):
+
+def run(host: str = "0.0.0.0", port: int = 34543):
     global app
     try:
         uvicorn.run(app, host=host, port=port)
