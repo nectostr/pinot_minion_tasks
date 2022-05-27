@@ -3,6 +3,7 @@ Example of youtube data collection
 """
 import multiprocessing
 import os
+import sys
 
 from returns.result import Result, Success, Failure
 
@@ -55,9 +56,9 @@ def run(video: str, duration: int, data_dump: str, pcap_name: str) -> Result[str
 
 
 if __name__ == '__main__':
-    video = os.argv[1]
-    duration = os.argv[2]
-    data_dump = os.argv[3]
+    video = sys.argv[1]
+    duration = sys.argv[2]
+    data_dump = sys.argv[3]
     pcap_name = os.path.join(data_dump, "test.pcap")
     result = run(video, duration, data_dump, pcap_name)
     print(result)
