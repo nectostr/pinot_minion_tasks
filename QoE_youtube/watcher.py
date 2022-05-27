@@ -98,6 +98,7 @@ def watch(url: str, how_long: Optional[int] = 100,
     display.start()
 
     options = Options()
+    options.add_argument('--no-sandbox')
 
     if ADBLOCK_PATH[-4:] == ".crx":
         # For unpacked extension (statsfornerds always unpacked to change it)
