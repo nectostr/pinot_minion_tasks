@@ -55,9 +55,9 @@ def run(video: str, duration: int, data_dump: str, pcap_name: str) -> Result[str
 
 
 if __name__ == '__main__':
-    video = r'https://www.youtube.com/watch?v=IrobEpQo3Ds'
-    duration = 5  # sec
-    data_dump = 'data_dump'
+    video = os.argv[1]
+    duration = os.argv[2]
+    data_dump = os.argv[3]
     pcap_name = os.path.join(data_dump, "test.pcap")
     result = run(video, duration, data_dump, pcap_name)
     print(result)
