@@ -22,12 +22,9 @@ def run(video: str, duration: int, data_dump: str, pcap_name: str) -> Result[str
     :param pcap_name:
     :return:
     """
-    fa_c = multiprocessing.Process(target=fastapic.run, args=(data_dump,))
-    fa_c.start()
 
     result = pcapc.start_collecting(pcap_name)
     if isinstance(result, Failure):
-        fa_c.terminate()
         return result
 
     pid = result.unwrap()
@@ -36,30 +33,33 @@ def run(video: str, duration: int, data_dump: str, pcap_name: str) -> Result[str
 
     result = watcher.watch(video, duration)
     if isinstance(result, Failure):
-        fa_c.terminate()
         pcapc.stop_collecting()
         return result
 
     result = pcapc.stop_collecting(pid)
     if isinstance(result, Failure):
-        fa_c.terminate()
         return result
 
     result = utubee.extract(pcap_name, data_dump)
     if isinstance(result, Failure):
-        fa_c.terminate()
         return result
-
-    fa_c.terminate()
 
     return Success("All done")
 
 
 if __name__ == '__main__':
     video = sys.argv[1]
-    duration = sys.argv[2]
+    duration = int(sys.argv[2])
     data_dump = sys.argv[3]
     os.mkdir(data_dump)
     pcap_name = os.path.join(data_dump, "test.pcap")
-    result = run(video, duration, data_dump, pcap_name)
+
+    fa_c = multiprocessing.Process(target=fastapic.run, args=(data_dump,))
+    fa_c.start()
+    try:
+        result = run(video, duration, data_dump, pcap_name)
+    except Exception:
+        raise
+    finally:
+        fa_c.terminate()
     print(result)
