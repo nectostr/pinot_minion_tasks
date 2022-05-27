@@ -71,7 +71,7 @@ def run(dump_folder: str = ".", host: str = "0.0.0.0", port: int = 34543):
     global app, DUMP_FOLDER
     DUMP_FOLDER = dump_folder
     try:
-        uvicorn.run(app, host=host, port=port)
+        uvicorn.run(app, host=host, port=port, log_level="warning")
     except (KeyboardInterrupt, Exception) as e:
         for file in file_descriptors.values():
             file.close()
