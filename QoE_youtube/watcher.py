@@ -14,8 +14,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-STATSFORNERDS_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/QoE_youtube/extensions/chrome_extension"
-ADBLOCK_PATH = r"/mnt/l/Users/nectostr/PycharmProjects/pinot_minion_tasks/QoE_youtube/extensions/4.46.2_0.crx"
+STATSFORNERDS_PATH = r"QoE_youtube/extensions/chrome_extension"
+ADBLOCK_PATH = r"QoE_youtube/extensions/4.46.2_0.crx"
 
 
 def extract_qualities(text: str) -> List[int]:
@@ -98,6 +98,7 @@ def watch(url: str, how_long: Optional[int] = 100,
     display.start()
 
     options = Options()
+    options.add_argument('--no-sandbox')
 
     if ADBLOCK_PATH[-4:] == ".crx":
         # For unpacked extension (statsfornerds always unpacked to change it)
