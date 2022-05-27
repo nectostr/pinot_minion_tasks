@@ -48,9 +48,17 @@ def run(video: str, duration: int, data_dump: str, pcap_name: str) -> Result[str
 
 
 if __name__ == '__main__':
-    video = sys.argv[1]
-    duration = int(sys.argv[2])
-    data_dump = sys.argv[3]
+    if len(sys.argv) != 4:
+        print("Usage: python3 example.py <video> <duration> <data_dump>")
+        print("Executing with default values: python3 example.py https://www.youtube.com/watch?v=dQw4w9WgXcQ 10 tmp")
+        video = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        duration = 10
+        data_dump = "tmp"
+    else:
+        video = sys.argv[1]
+        duration = int(sys.argv[2])
+        data_dump = sys.argv[3]
+
     os.mkdir(data_dump)
     pcap_name = os.path.join(data_dump, "test.pcap")
 
