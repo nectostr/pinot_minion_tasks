@@ -42,8 +42,8 @@ def extract(filepath: str, dump_path: str = ".") -> Result[list, str]:
                         f"ip.dst == {dst} && tcp.dstport == {dstport}) || " \
                         f"(ip.src == {dst} && tcp.srcport == {dstport} && " \
                         f"ip.dst == {src} && tcp.dstport == {srcport}) || " \
-                        f"(ip.src == {src} && ip.dst == {dst} && quic) || " \
-                        f"(ip.src == {dst} && ip.dst == {src} && quic)"
+                        f"(ip.src == {src} && ip.dst == {dst} && udp) || " \
+                        f"(ip.src == {dst} && ip.dst == {src} && udp)"
         filename = os.path.join(dump_path, f"{src}_{srcport}_{dst}_{dstport}.pcap")
         filenames.append(filename)
         capture = pyshark.FileCapture(filepath, display_filter=tshark_filter, output_file=filename)
