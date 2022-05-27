@@ -22,7 +22,7 @@ def run(video: str, duration: int, data_dump: str, pcap_name: str) -> Result[str
     :param pcap_name:
     :return:
     """
-    fa_c = multiprocessing.Process(target=fastapic.run)
+    fa_c = multiprocessing.Process(target=fastapic.run, args=(data_dump,))
     fa_c.start()
 
     result = pcapc.start_collecting(pcap_name)
@@ -59,6 +59,7 @@ if __name__ == '__main__':
     video = sys.argv[1]
     duration = sys.argv[2]
     data_dump = sys.argv[3]
+    os.mkdir(data_dump)
     pcap_name = os.path.join(data_dump, "test.pcap")
     result = run(video, duration, data_dump, pcap_name)
     print(result)
