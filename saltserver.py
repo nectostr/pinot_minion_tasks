@@ -29,9 +29,10 @@ iteration = 0
 while True:
     print('Iteration: {}'.format(iteration))
     for device in raspis:
+        os.system(f"salt '{device}' cmd.run 'killall Xvfb'")
         video = choice(videos)
         folder = ''.join(choices(string.ascii_lowercase, k=10))
-        cmd = f"salt '{device}' cmd.run 'cd kell/pinot_minion_tasks && python3 example.py {video} {DURATION} {folder}' --async"
+        cmd = f"salt '{device}' cmd.run 'cd kell/pinot_minion_tasks && xvfb-run python3 example.py {video} {DURATION} {folder}' --async"
         os.system(cmd)
         time.sleep(1)
     print('Sleeping for {} seconds'.format(SLEEP_INTERVAL))
